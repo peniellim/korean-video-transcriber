@@ -1,3 +1,18 @@
+import os
+import subprocess
+
+MODEL_DIR = "model"
+MODEL_URL = "https://alphacephei.com/vosk/models/vosk-model-small-ko-0.22.zip"
+
+# Download & unzip model if not already present
+if not os.path.exists(MODEL_DIR):
+    print("Downloading Vosk model...")
+    subprocess.run(["wget", MODEL_URL, "-O", "model.zip"])
+    subprocess.run(["unzip", "model.zip", "-d", "."])
+    os.rename("vosk-model-small-ko-0.22", MODEL_DIR)
+    subprocess.run(["rm", "model.zip"])
+
+
 from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import openai
