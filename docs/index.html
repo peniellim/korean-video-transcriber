@@ -1,24 +1,100 @@
-<h2>Korean Video Transcriber</h2>
-<input type="file" id="video">
-<button onclick="uploadVideo()">Upload</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Korean Video Transcriber</title>
 
-<pre id="output"></pre>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
 
-<script>
-const API = "https://korean-video-transcriber.onrender.com/transcribe";
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
 
-async function uploadVideo() {
-  const file = document.getElementById("video").files[0];
-  const form = new FormData();
-  form.append("file", file);
+        #result-box {
+            white-space: pre-line;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            display: none;
+        }
 
-  const r = await fetch(API, {
-    method: "POST",
-    body: form
-  });
+        #loading {
+            display: none;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
 
-  const json = await r.json();
-  document.getElementById("output").textContent =
-    JSON.stringify(json, null, 2);
-}
-</script>
+<body>
+    <h1>Korean Video Transcriber</h1>
+
+    <p>Select a Korean video file. The backend will process the audio and generate:</p>
+
+    <ul>
+        <li>Full audio transcription</li>
+        <li>On-screen caption text</li>
+        <li>Timestamps for each segment</li>
+    </ul>
+
+    <input type="file" id="videoUpload" accept="video/*" />
+    <button onclick="uploadVideo()">Transcribe</button>
+
+    <div id="loading">Processing… This may take a few minutes.</div>
+
+    <div id="result-box"></div>
+
+    <script>
+        async function uploadVideo() {
+            const fileInput = document.getElementById("videoUpload");
+            const resultBox = document.getElementById("result-box");
+            const loading = document.getElementById("loading");
+
+            if (!fileInput.files.length) {
+                alert("Please select a video file.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append("file", file);
+
+            resultBox.style.display = "none";
+            loading.style.display = "block";
+
+            try {
+                // IMPORTANT: update to your backend URL
+                const backendURL = "http://127.0.0.1:5000/transcribe"; 
+                const response = await fetch(backendURL, {
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error("Backend returned error");
+                }
+
+                const data = await response.json();
+
+                loading.style.display = "none";
+                resultBox.style.display = "block";
+
+                resultBox.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                loading.style.display = "none";
+                alert("Error: " + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
