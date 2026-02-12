@@ -1,17 +1,17 @@
+from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+import openai
+import os
 
+app = FastAPI()
+
+# Enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-from fastapi import FastAPI, UploadFile
-import openai
-import os
-
-app = FastAPI()
 
 @app.post("/transcribe")
 async def transcribe(file: UploadFile):
